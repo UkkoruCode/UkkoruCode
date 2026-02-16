@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UkkoruCode | Desarrollo de Software en Colombia</title>
+    <meta name="description" content="Transformamos ideas en soluciones digitales de alto impacto. Desarrollo de software a la medida en Colombia.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] },
+                    colors: {
+                        brand: { blue: '#0066FF', purple: '#6C2BD9', dark: '#0F0F14', cyan: '#00D4FF', light: '#1A1A24' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; background-color: #0F0F14; color: white; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0F0F14; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #0066FF, #6C2BD9); border-radius: 4px; }
+        .gradient-text { background: linear-gradient(135deg, #0066FF 0%, #00D4FF 50%, #6C2BD9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .glow-blue { box-shadow: 0 0 40px rgba(0, 102, 255, 0.4), 0 0 80px rgba(0, 102, 255, 0.2); }
+        .glow-purple { box-shadow: 0 0 40px rgba(108, 43, 217, 0.4), 0 0 80px rgba(108, 43, 217, 0.2); }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-strong { background: rgba(15, 15, 20, 0.8); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-primary { background: linear-gradient(135deg, #0066FF 0%, #6C2BD9 100%); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; }
+        .btn-primary::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transition: left 0.5s; }
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 40px rgba(0, 102, 255, 0.5); }
+        .btn-outline { border: 2px solid rgba(255, 255, 255, 0.2); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .btn-outline:hover { border-color: #0066FF; background: rgba(0, 102, 255, 0.1); transform: translateY(-3px); }
+        .card-hover { transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card-hover:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 60px rgba(0, 102, 255, 0.2); }
+        .flip-card { perspective: 1000px; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); transform-style: preserve-3d; }
+        .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 20px; }
+        .flip-card-back { transform: rotateY(180deg); }
+        #particles-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .modal-overlay { opacity: 0; visibility: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { transform: scale(0.8) translateY(50px); opacity: 0; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+        .org-line { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+        .org-line.animate { animation: drawLine 2s ease forwards; }
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
+        .float-animation { animation: float 4s ease-in-out infinite; }
+        @keyframes pulseGlow { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+        .pulse-glow { animation: pulseGlow 3s ease-in-out infinite; }
+        .input-glow { transition: all 0.3s ease; }
+        .input-glow:focus { border-color: #0066FF; box-shadow: 0 0 20px rgba(0, 102, 255, 0.3); }
+        .nav-hidden { transform: translateY(-100%); }
+        .nav-visible { transform: translateY(0); }
+        .service-card-3d { transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .service-card-3d:hover { transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) translateZ(20px); }
+        .tech-badge { background: rgba(0, 102, 255, 0.15); border: 1px solid rgba(0, 102, 255, 0.3); transition: all 0.3s ease; }
+        .tech-badge:hover { background: rgba(0, 102, 255, 0.3); transform: scale(1.05); }
+        .img-zoom { overflow: hidden; }
+        .img-zoom img { transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .img-zoom:hover img { transform: scale(1.1); }
+        .reveal { opacity: 0; transform: translateY(30px); }
+        ::selection { background: rgba(0, 102, 255, 0.4); color: white; }
+    </style>
+    <link rel="icon" type="image/x-icon" href="../ukkorucode/images/favicon-32x32.png">
+</head>
+<body>
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 nav-hidden">
+        <div class="glass-strong">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16 lg:h-20">
+                    <a href="#home" class="flex items-center gap-2 group">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center">
+                        <img src="./images/Circular Logo.png" alt="Logo" class="w-10 h-10 object-contain">
+                        </div>
+                        <span class="text-xl font-bold">Ukkoru<span class="gradient-text">Code</span></span>
+                    </a>
+                    <div class="hidden lg:flex items-center gap-8">
+                        <a href="#home" class="text-sm text-white/70 hover:text-white transition-colors relative group">Inicio<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-blue to-brand-purple group-hover:w-full transition-all duration-300"></span></a>
+                        <a href="#about" class="text-sm text-white/70 hover:text-white transition-colors relative group">Nosotros<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-blue to-brand-purple group-hover:w-full transition-all duration-300"></span></a>
+                        <a href="#services" class="text-sm text-white/70 hover:text-white transition-colors relative group">Servicios<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-blue to-brand-purple group-hover:w-full transition-all duration-300"></span></a>
+                        <a href="#portfolio" class="text-sm text-white/70 hover:text-white transition-colors relative group">Portafolio<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-brand-blue to-brand-purple group-hover:w-full transition-all duration-300"></span></a>
+                        <a href="#contact" class="btn-primary px-6 py-2.5 rounded-full text-sm font-medium">Contáctanos</a>
+                    </div>
+                    <button id="mobile-menu-btn" class="lg:hidden p-2 text-white"><i data-lucide="menu" class="w-6 h-6"></i></button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="lg:hidden hidden glass-strong border-t border-white/10">
+            <div class="px-4 py-4 space-y-3">
+                <a href="#home" class="block py-2 text-white/70 hover:text-white transition-colors">Inicio</a>
+                <a href="#about" class="block py-2 text-white/70 hover:text-white transition-colors">Nosotros</a>
+                <a href="#services" class="block py-2 text-white/70 hover:text-white transition-colors">Servicios</a>
+                <a href="#portfolio" class="block py-2 text-white/70 hover:text-white transition-colors">Portafolio</a>
+                <a href="#contact" class="block py-2 text-white/70 hover:text-white transition-colors">Contacto</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-1/4 -left-40 w-96 h-96 bg-brand-blue/30 rounded-full blur-[120px] pulse-glow"></div>
+            <div class="absolute bottom-1/4 -right-40 w-96 h-96 bg-brand-purple/30 rounded-full blur-[120px] pulse-glow" style="animation-delay: 1.5s;"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-cyan/10 rounded-full blur-[150px] pulse-glow" style="animation-delay: 3s;"></div>
+            <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(rgba(0, 102, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 102, 255, 0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
+        </div>
+        <canvas id="particles-canvas"></canvas>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <div class="text-center lg:text-left">
+                    <div class="hero-badge inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6">
+                        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                        <span class="text-sm text-white/80">Transformando el futuro digital</span>
+                    </div>
+                    <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6">Transformamos ideas en<span class="gradient-text block mt-2">soluciones digitales de alto impacto</span></h1>
+                    <p class="hero-subtitle text-lg sm:text-xl text-white/70 max-w-2xl mx-auto lg:mx-0 mb-8">Desarrollo de software a la medida, soluciones empresariales y tecnología escalable para impulsar tu negocio en Colombia y Latinoamérica.</p>
+                    <div class="hero-buttons flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <a href="#contact" class="btn-primary px-8 py-4 rounded-full font-semibold text-center flex items-center justify-center gap-2"><span>Solicitar Cotización</span><i data-lucide="arrow-right" class="w-5 h-5"></i></a>
+                        <a href="#portfolio" class="btn-outline px-8 py-4 rounded-full font-semibold text-center flex items-center justify-center gap-2"><i data-lucide="play" class="w-5 h-5"></i><span>Ver Portafolio</span></a>
+                    </div>
+                </div>
+                <div class="hero-image relative">
+                    <div class="relative float-animation">
+                        <div class="absolute inset-0 bg-gradient-to-r from-brand-blue/40 to-brand-purple/40 rounded-3xl blur-3xl scale-95"></div>
+                        <div class="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl img-zoom">
+                            <img src="images/hero-main.jpg" alt="UkkoruCode - Desarrollo de Software" class="w-full h-auto">
+                            <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/60 via-transparent to-transparent"></div>
+                        </div>
+                        <div class="absolute -bottom-4 -left-4 glass rounded-2xl p-4 float-animation" style="animation-delay: 1s;">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center"><i data-lucide="check-circle" class="w-6 h-6 text-white"></i></div>
+                                <div><div class="text-white font-semibold">Entrega Rápida</div><div class="text-white/60 text-sm">A tiempo, siempre</div></div>
+                            </div>
+                        </div>
+                        <div class="absolute -top-4 -right-4 glass rounded-2xl p-4 float-animation" style="animation-delay: 2s;">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-brand-blue to-brand-purple flex items-center justify-center"><i data-lucide="star" class="w-6 h-6 text-white"></i></div>
+                                <div><div class="text-white font-semibold">Top Rated</div><div class="text-white/60 text-sm">5.0/5.0 Rating</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-brand-dark to-transparent"></div>
+    </section>
+
+    <section id="about" class="relative py-24 lg:py-32 overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-blue/5 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-brand-purple/10 rounded-full blur-[150px]"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                <div class="reveal about-image relative">
+                    <div class="relative">
+                        <div class="absolute -top-4 -left-4 w-24 h-24 border-l-2 border-t-2 border-brand-cyan/50"></div>
+                        <div class="absolute -bottom-4 -right-4 w-24 h-24 border-r-2 border-b-2 border-brand-purple/50"></div>
+                        <div class="relative rounded-2xl overflow-hidden img-zoom">
+                            <img src="images/about-team.jpg" alt="Equipo UkkoruCode" class="w-full h-auto">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-brand-dark/40 via-transparent to-brand-cyan/10"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal about-text">
+                    <span class="inline-block text-brand-cyan text-sm font-semibold tracking-wider uppercase mb-4">Sobre Nosotros</span>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">Somos <span class="gradient-text">UkkoruCode</span></h2>
+                    <div class="space-y-4 text-white/70 text-lg leading-relaxed">
+                        <p>UkkoruCode es una empresa colombiana especializada en el diseño, desarrollo e implementación de soluciones tecnológicas innovadoras. Combinamos estrategia, ingeniería y creatividad para construir productos digitales robustos, escalables y orientados a resultados.</p>
+                        <p>Nuestro equipo de desarrolladores y diseñadores experimentados trabaja colaborativamente para entregar productos que no solo cumplen, sino que superan tus expectativas. Creemos en el poder de la tecnología para transformar negocios e impulsar el crecimiento.</p>
+                        <p>Con un firme compromiso con la calidad, la innovación y la satisfacción del cliente, hemos impulsado iniciativas de transformación digital en múltiples industrias, acompañando a las empresas en el logro de sus objetivos estratégicos con soluciones eficientes y orientadas a resultados.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-4 mt-8">
+                        <div class="flex items-center gap-2 glass rounded-full px-4 py-2"><i data-lucide="check-circle" class="w-5 h-5 text-brand-cyan"></i><span class="text-sm text-white/80">Metodologías Ágiles</span></div>
+                        <div class="flex items-center gap-2 glass rounded-full px-4 py-2"><i data-lucide="check-circle" class="w-5 h-5 text-brand-cyan"></i><span class="text-sm text-white/80">Acompañamiento</span></div>
+                        <div class="flex items-center gap-2 glass rounded-full px-4 py-2"><i data-lucide="check-circle" class="w-5 h-5 text-brand-cyan"></i><span class="text-sm text-white/80">Alta Seguridad</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="relative py-24 lg:py-32 overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[200px]"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <span class="inline-block text-brand-cyan text-sm font-semibold tracking-wider uppercase mb-4">Nuestra Esencia</span>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold">Misión y <span class="gradient-text">Visión</span></h2>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+                <div class="reveal flip-card h-80">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front glass p-8 flex flex-col items-center justify-center text-center">
+                            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-blue/20 to-brand-purple/20 flex items-center justify-center mb-6"><i data-lucide="target" class="w-10 h-10 text-brand-cyan"></i></div>
+                            <h3 class="text-2xl font-bold mb-4">Nuestra Misión</h3>
+                            <p class="text-white/60">Pasa el cursor para descubrir</p>
+                            <div class="mt-6 flex items-center gap-2 text-brand-cyan"><i data-lucide="rotate-3d" class="w-5 h-5"></i><span class="text-sm">Gira la tarjeta</span></div>
+                        </div>
+                        <div class="flip-card-back glass p-8 flex flex-col justify-center" style="background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(108, 43, 217, 0.1));">
+                            <h3 class="text-2xl font-bold mb-4 gradient-text">Nuestra Misión</h3>
+                            <p class="text-white/80 leading-relaxed">Desarrollar soluciones tecnológicas innovadoras, escalables y seguras que impulsen el crecimiento digital de empresas en Colombia y Latinoamérica, transformando la manera en que operan y se conectan con sus clientes.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal flip-card h-80" style="animation-delay: 0.2s;">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front glass p-8 flex flex-col items-center justify-center text-center">
+                            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-purple/20 to-brand-cyan/20 flex items-center justify-center mb-6"><i data-lucide="eye" class="w-10 h-10 text-brand-purple"></i></div>
+                            <h3 class="text-2xl font-bold mb-4">Nuestra Visión</h3>
+                            <p class="text-white/60">Pasa el cursor para descubrir</p>
+                            <div class="mt-6 flex items-center gap-2 text-brand-purple"><i data-lucide="rotate-3d" class="w-5 h-5"></i><span class="text-sm">Gira la tarjeta</span></div>
+                        </div>
+                        <div class="flip-card-back glass p-8 flex flex-col justify-center" style="background: linear-gradient(135deg, rgba(108, 43, 217, 0.1), rgba(0, 212, 255, 0.1));">
+                            <h3 class="text-2xl font-bold mb-4 gradient-text">Nuestra Visión</h3>
+                            <p class="text-white/80 leading-relaxed">Ser una de las empresas líderes en desarrollo de software en Latinoamérica, reconocida por la excelencia técnica, innovación constante y transformación digital de alto impacto que genera valor real para nuestros clientes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="relative py-24 lg:py-32 overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand-cyan/30 to-transparent"></div>
+            <div class="absolute bottom-0 right-0 w-96 h-96 bg-brand-blue/10 rounded-full blur-[150px]"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <span class="inline-block text-brand-cyan text-sm font-semibold tracking-wider uppercase mb-4">Nuestros Servicios</span>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Soluciones que <span class="gradient-text">Transforman</span></h2>
+                <p class="text-white/60 text-lg max-w-2xl mx-auto">Ofrecemos una gama completa de servicios de desarrollo de software para ayudar a tu negocio a prosperar en la era digital.</p>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                <div class="reveal service-card-3d glass rounded-2xl p-6 lg:p-8 card-hover group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-blue/20 to-brand-cyan/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="globe" class="w-7 h-7 text-brand-cyan"></i></div>
+                    <h3 class="text-xl font-bold mb-3 group-hover:text-brand-cyan transition-colors">Desarrollo Web</h3>
+                    <p class="text-white/60 text-sm mb-4">Sitios web responsivos y de alta calidad adaptados a tus objetivos de negocio.</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i>Diseño Responsivo</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i>SEO Optimizado</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i>Alto Rendimiento</li>
+                    </ul>
+                </div>
+                <div class="reveal service-card-3d glass rounded-2xl p-6 lg:p-8 card-hover group" style="animation-delay: 0.1s;">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-purple/20 to-brand-blue/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="smartphone" class="w-7 h-7 text-brand-purple"></i></div>
+                    <h3 class="text-xl font-bold mb-3 group-hover:text-brand-purple transition-colors">Apps Móviles</h3>
+                    <p class="text-white/60 text-sm mb-4">Aplicaciones nativas e híbridas para iOS y Android con experiencias excepcionales.</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i>iOS & Android</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i>React Native / Flutter</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i>UX/UI Intuitivo</li>
+                    </ul>
+                </div>
+                <div class="reveal service-card-3d glass rounded-2xl p-6 lg:p-8 card-hover group" style="animation-delay: 0.2s;">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-cyan/20 to-brand-purple/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="settings" class="w-7 h-7 text-brand-cyan"></i></div>
+                    <h3 class="text-xl font-bold mb-3 group-hover:text-brand-cyan transition-colors">Software a Medida</h3>
+                    <p class="text-white/60 text-sm mb-4">Soluciones personalizadas diseñadas específicamente para tus necesidades únicas.</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i>Soluciones Únicas</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i>Integración API</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i>Migración Legacy</li>
+                    </ul>
+                </div>
+                <div class="reveal service-card-3d glass rounded-2xl p-6 lg:p-8 card-hover group" style="animation-delay: 0.3s;">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-blue/20 to-brand-purple/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="cloud" class="w-7 h-7 text-brand-blue"></i></div>
+                    <h3 class="text-xl font-bold mb-3 group-hover:text-brand-blue transition-colors">Software SaaS</h3>
+                    <p class="text-white/60 text-sm mb-4">Plataformas en la nube escalables con modelos de suscripción flexibles.</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-blue"></i>Arquitectura Escalable</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-blue"></i>Multi-tenant</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-blue"></i>Pagos Integrados</li>
+                    </ul>
+                </div>
+                <div class="reveal service-card-3d glass rounded-2xl p-6 lg:p-8 card-hover group" style="animation-delay: 0.4s;">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-purple/20 to-brand-cyan/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="brain" class="w-7 h-7 text-brand-purple"></i></div>
+                    <h3 class="text-xl font-bold mb-3 group-hover:text-brand-purple transition-colors">Inteligencia Artificial</h3>
+                    <p class="text-white/60 text-sm mb-4">Implementación de IA y machine learning para automatizar y optimizar procesos.</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i>Machine Learning</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i>NLP & Chatbots</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i>Análisis Predictivo</li>
+                    </ul>
+                </div>
+                <div class="reveal service-card-3d glass rounded-2xl p-6 lg:p-8 card-hover group" style="animation-delay: 0.5s;">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-cyan/20 to-brand-blue/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="zap" class="w-7 h-7 text-brand-cyan"></i></div>
+                    <h3 class="text-xl font-bold mb-3 group-hover:text-brand-cyan transition-colors">Automatización</h3>
+                    <p class="text-white/60 text-sm mb-4">Automatización de procesos empresariales para aumentar eficiencia y reducir costos.</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i>RPA (Robotics)</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i>Workflows</li>
+                        <li class="flex items-center gap-2 text-sm text-white/50"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i>Integración Cloud</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="relative py-24 lg:py-32 overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-purple/5 rounded-full blur-[200px]"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <span class="inline-block text-brand-cyan text-sm font-semibold tracking-wider uppercase mb-4">Nuestro Equipo</span>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Estructura <span class="gradient-text">Interna</span></h2>
+                <p class="text-white/60 text-lg max-w-2xl mx-auto">Un equipo multidisciplinario de expertos dedicados a hacer realidad tus proyectos.</p>
+            </div>
+            <div class="reveal relative">
+                <svg class="absolute inset-0 w-full h-full pointer-events-none hidden lg:block" style="z-index: 0;">
+                    <line x1="50%" y1="80" x2="25%" y2="200" stroke="url(#gradient1)" stroke-width="2" class="org-line" stroke-opacity="0.5"/>
+                    <line x1="50%" y1="80" x2="50%" y2="200" stroke="url(#gradient1)" stroke-width="2" class="org-line" stroke-opacity="0.5"/>
+                    <line x1="50%" y1="80" x2="75%" y2="200" stroke="url(#gradient1)" stroke-width="2" class="org-line" stroke-opacity="0.5"/>
+                    <line x1="25%" y1="280" x2="12.5%" y2="400" stroke="url(#gradient2)" stroke-width="2" class="org-line" stroke-opacity="0.5"/>
+                    <line x1="25%" y1="280" x2="37.5%" y2="400" stroke="url(#gradient2)" stroke-width="2" class="org-line" stroke-opacity="0.5"/>
+                    <line x1="75%" y1="280" x2="62.5%" y2="400" stroke="url(#gradient2)" stroke-width="2" class="org-line" stroke-opacity="0.5"/>
+                    <line x1="75%" y1="280" x2="87.5%" y2="400" stroke="url(#gradient2)" stroke-width="2" class="org-line" stroke-opacity="0.5"/>
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0066FF"/><stop offset="100%" stop-color="#6C2BD9"/></linearGradient>
+                        <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6C2BD9"/><stop offset="100%" stop-color="#00D4FF"/></linearGradient>
+                    </defs>
+                </svg>
+                <div class="relative z-10 space-y-8 lg:space-y-12">
+                    <div class="flex justify-center">
+                        <div class="glass rounded-2xl p-6 text-center card-hover glow-blue">
+                            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-brand-blue to-brand-purple flex items-center justify-center mx-auto mb-4"><i data-lucide="crown" class="w-8 h-8 text-white"></i></div>
+                            <h4 class="font-bold text-lg">CEO / Director General</h4>
+                            <p class="text-white/60 text-sm">Liderazgo Estratégico</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 lg:gap-8">
+                        <div class="glass rounded-2xl p-6 text-center card-hover">
+                            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-brand-cyan to-brand-blue flex items-center justify-center mx-auto mb-4"><i data-lucide="cpu" class="w-7 h-7 text-white"></i></div>
+                            <h4 class="font-bold">CTO</h4>
+                            <p class="text-white/60 text-sm">Dirección Técnica</p>
+                        </div>
+                        <div class="glass rounded-2xl p-6 text-center card-hover">
+                            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-brand-purple to-brand-cyan flex items-center justify-center mx-auto mb-4"><i data-lucide="users" class="w-7 h-7 text-white"></i></div>
+                            <h4 class="font-bold">COO</h4>
+                            <p class="text-white/60 text-sm">Operaciones</p>
+                        </div>
+                        <div class="glass rounded-2xl p-6 text-center card-hover">
+                            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-brand-blue to-brand-purple flex items-center justify-center mx-auto mb-4"><i data-lucide="trending-up" class="w-7 h-7 text-white"></i></div>
+                            <h4 class="font-bold">CMO</h4>
+                            <p class="text-white/60 text-sm">Marketing</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 lg:gap-6">
+                        <div class="glass rounded-xl p-4 text-center card-hover"><div class="w-10 h-10 rounded-lg bg-brand-blue/20 flex items-center justify-center mx-auto mb-3"><i data-lucide="code" class="w-5 h-5 text-brand-blue"></i></div><h5 class="font-semibold text-sm">Backend</h5></div>
+                        <div class="glass rounded-xl p-4 text-center card-hover"><div class="w-10 h-10 rounded-lg bg-brand-cyan/20 flex items-center justify-center mx-auto mb-3"><i data-lucide="layout" class="w-5 h-5 text-brand-cyan"></i></div><h5 class="font-semibold text-sm">Frontend</h5></div>
+                        <div class="glass rounded-xl p-4 text-center card-hover"><div class="w-10 h-10 rounded-lg bg-brand-purple/20 flex items-center justify-center mx-auto mb-3"><i data-lucide="palette" class="w-5 h-5 text-brand-purple"></i></div><h5 class="font-semibold text-sm">UX/UI</h5></div>
+                        <div class="glass rounded-xl p-4 text-center card-hover"><div class="w-10 h-10 rounded-lg bg-brand-blue/20 flex items-center justify-center mx-auto mb-3"><i data-lucide="server" class="w-5 h-5 text-brand-blue"></i></div><h5 class="font-semibold text-sm">DevOps</h5></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="portfolio" class="relative py-24 lg:py-32 overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-purple/5 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-brand-blue/10 rounded-full blur-[150px]"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <span class="inline-block text-brand-cyan text-sm font-semibold tracking-wider uppercase mb-4">Nuestro Trabajo</span>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Portafolio de <span class="gradient-text">Proyectos</span></h2>
+                <p class="text-white/60 text-lg max-w-2xl mx-auto">Descubre algunos de nuestros proyectos más destacados y las soluciones que hemos creado para nuestros clientes.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                <div class="reveal glass rounded-2xl overflow-hidden card-hover group">
+                    <div class="relative img-zoom"><img src="images/project-saas.jpg" alt="Plataforma SaaS" class="w-full h-48 object-cover"><div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-brand-cyan transition-colors">Plataforma SaaS de Gestión Empresarial</h3>
+                        <p class="text-white/60 text-sm mb-4 line-clamp-2">Sistema completo de gestión empresarial con módulos de proyectos, equipos y análisis en tiempo real.</p>
+                        <div class="flex flex-wrap gap-2 mb-4"><span class="tech-badge px-3 py-1 rounded-full text-xs">React</span><span class="tech-badge px-3 py-1 rounded-full text-xs">Node.js</span><span class="tech-badge px-3 py-1 rounded-full text-xs">PostgreSQL</span></div>
+                        <button onclick="openModal('modal1')" class="flex items-center gap-2 text-brand-cyan text-sm font-medium hover:gap-3 transition-all"><span>Leer más</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+                <div class="reveal glass rounded-2xl overflow-hidden card-hover group" style="animation-delay: 0.1s;">
+                    <div class="relative img-zoom"><img src="images/project-fintech.jpg" alt="App Fintech" class="w-full h-48 object-cover"><div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-brand-purple transition-colors">App Móvil Fintech</h3>
+                        <p class="text-white/60 text-sm mb-4 line-clamp-2">Aplicación bancaria digital con billetera virtual, criptomonedas y pagos biométricos.</p>
+                        <div class="flex flex-wrap gap-2 mb-4"><span class="tech-badge px-3 py-1 rounded-full text-xs">Flutter</span><span class="tech-badge px-3 py-1 rounded-full text-xs">Firebase</span><span class="tech-badge px-3 py-1 rounded-full text-xs">Stripe</span></div>
+                        <button onclick="openModal('modal2')" class="flex items-center gap-2 text-brand-cyan text-sm font-medium hover:gap-3 transition-all"><span>Leer más</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+                <div class="reveal glass rounded-2xl overflow-hidden card-hover group" style="animation-delay: 0.2s;">
+                    <div class="relative img-zoom"><img src="images/project-erp.jpg" alt="Sistema ERP" class="w-full h-48 object-cover"><div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-brand-blue transition-colors">Sistema ERP para PYMES</h3>
+                        <p class="text-white/60 text-sm mb-4 line-clamp-2">Sistema integral de planificación de recursos empresariales para pequeñas y medianas empresas.</p>
+                        <div class="flex flex-wrap gap-2 mb-4"><span class="tech-badge px-3 py-1 rounded-full text-xs">Vue.js</span><span class="tech-badge px-3 py-1 rounded-full text-xs">Laravel</span><span class="tech-badge px-3 py-1 rounded-full text-xs">MySQL</span></div>
+                        <button onclick="openModal('modal3')" class="flex items-center gap-2 text-brand-cyan text-sm font-medium hover:gap-3 transition-all"><span>Leer más</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+                <div class="reveal glass rounded-2xl overflow-hidden card-hover group" style="animation-delay: 0.3s;">
+                    <div class="relative img-zoom"><img src="images/project-elearning.jpg" alt="Plataforma E-learning" class="w-full h-48 object-cover"><div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-brand-cyan transition-colors">Plataforma E-learning Corporativa</h3>
+                        <p class="text-white/60 text-sm mb-4 line-clamp-2">Plataforma de aprendizaje en línea con cursos interactivos, evaluaciones y certificaciones.</p>
+                        <div class="flex flex-wrap gap-2 mb-4"><span class="tech-badge px-3 py-1 rounded-full text-xs">Next.js</span><span class="tech-badge px-3 py-1 rounded-full text-xs">Python</span><span class="tech-badge px-3 py-1 rounded-full text-xs">AWS</span></div>
+                        <button onclick="openModal('modal4')" class="flex items-center gap-2 text-brand-cyan text-sm font-medium hover:gap-3 transition-all"><span>Leer más</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+                <div class="reveal glass rounded-2xl overflow-hidden card-hover group" style="animation-delay: 0.4s;">
+                    <div class="relative img-zoom"><img src="images/project-ai-dashboard.jpg" alt="Dashboard AI" class="w-full h-48 object-cover"><div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div></div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-brand-purple transition-colors">Dashboard Analítico con IA</h3>
+                        <p class="text-white/60 text-sm mb-4 line-clamp-2">Panel de control inteligente con análisis predictivo, visualización de datos y alertas automáticas.</p>
+                        <div class="flex flex-wrap gap-2 mb-4"><span class="tech-badge px-3 py-1 rounded-full text-xs">React</span><span class="tech-badge px-3 py-1 rounded-full text-xs">TensorFlow</span><span class="tech-badge px-3 py-1 rounded-full text-xs">D3.js</span></div>
+                        <button onclick="openModal('modal5')" class="flex items-center gap-2 text-brand-cyan text-sm font-medium hover:gap-3 transition-all"><span>Leer más</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+                <div class="reveal glass rounded-2xl p-8 flex flex-col items-center justify-center text-center" style="animation-delay: 0.5s;">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-brand-blue/20 to-brand-purple/20 flex items-center justify-center mb-4"><i data-lucide="folder-open" class="w-8 h-8 text-brand-cyan"></i></div>
+                    <h3 class="text-xl font-bold mb-2">¿Quieres ver más?</h3>
+                    <p class="text-white/60 text-sm mb-6">Tenemos muchos más proyectos exitosos que mostrarte.</p>
+                    <a href="#contact" class="btn-primary px-6 py-3 rounded-full text-sm font-medium">Contáctanos</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="modal1" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal('modal1')"></div>
+        <div class="modal-content relative glass-strong rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('modal1')" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="img-zoom"><img src="images/project-saas.jpg" alt="Plataforma SaaS" class="w-full h-64 object-cover"></div>
+            <div class="p-8">
+                <h3 class="text-2xl font-bold mb-4 gradient-text">Plataforma SaaS de Gestión Empresarial</h3>
+                <p class="text-white/70 mb-6 leading-relaxed">Desarrollamos una plataforma completa de gestión empresarial que permite a las empresas administrar proyectos, equipos, tareas y recursos desde un solo lugar. La plataforma incluye dashboards en tiempo real, reportes automatizados, integración con herramientas populares y un sistema de permisos avanzado.</p>
+                <div class="mb-6"><h4 class="font-semibold mb-3">Características principales:</h4><ul class="space-y-2 text-white/60"><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i> Gestión de proyectos con metodologías ágiles</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i> Dashboards en tiempo real con métricas clave</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i> Sistema de roles y permisos granular</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i> Integración con Slack, Google Workspace y más</li></ul></div>
+                <div class="flex flex-wrap gap-2"><span class="px-3 py-1 rounded-full bg-brand-blue/20 text-brand-cyan text-sm">React</span><span class="px-3 py-1 rounded-full bg-brand-blue/20 text-brand-cyan text-sm">Node.js</span><span class="px-3 py-1 rounded-full bg-brand-blue/20 text-brand-cyan text-sm">PostgreSQL</span><span class="px-3 py-1 rounded-full bg-brand-blue/20 text-brand-cyan text-sm">Redis</span><span class="px-3 py-1 rounded-full bg-brand-blue/20 text-brand-cyan text-sm">Docker</span></div>
+            </div>
+        </div>
+    </div>
+    <div id="modal2" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal('modal2')"></div>
+        <div class="modal-content relative glass-strong rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('modal2')" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="img-zoom"><img src="images/project-fintech.jpg" alt="App Fintech" class="w-full h-64 object-cover"></div>
+            <div class="p-8">
+                <h3 class="text-2xl font-bold mb-4 gradient-text">App Móvil Fintech</h3>
+                <p class="text-white/70 mb-6 leading-relaxed">Aplicación bancaria digital completa que permite a los usuarios gestionar sus finanzas, realizar transferencias, comprar criptomonedas y realizar pagos con tecnología biométrica. La app cuenta con seguridad de nivel bancario y cumple con todas las regulaciones financieras.</p>
+                <div class="mb-6"><h4 class="font-semibold mb-3">Características principales:</h4><ul class="space-y-2 text-white/60"><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i> Billetera virtual multi-moneda</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i> Compra/venta de criptomonedas</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i> Autenticación biométrica</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i> Notificaciones push en tiempo real</li></ul></div>
+                <div class="flex flex-wrap gap-2"><span class="px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple text-sm">Flutter</span><span class="px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple text-sm">Firebase</span><span class="px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple text-sm">Stripe</span><span class="px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple text-sm">WebSockets</span></div>
+            </div>
+        </div>
+    </div>
+    <div id="modal3" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal('modal3')"></div>
+        <div class="modal-content relative glass-strong rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('modal3')" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="img-zoom"><img src="images/project-erp.jpg" alt="Sistema ERP" class="w-full h-64 object-cover"></div>
+            <div class="p-8">
+                <h3 class="text-2xl font-bold mb-4 gradient-text">Sistema ERP para PYMES</h3>
+                <p class="text-white/70 mb-6 leading-relaxed">Sistema integral de planificación de recursos empresariales diseñado específicamente para pequeñas y medianas empresas. Integra todos los procesos de negocio en una sola plataforma, desde inventario hasta contabilidad y recursos humanos.</p>
+                <div class="mb-6"><h4 class="font-semibold mb-3">Características principales:</h4><ul class="space-y-2 text-white/60"><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-blue"></i> Gestión de inventario en tiempo real</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-blue"></i> Módulo contable completo</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-blue"></i> Gestión de recursos humanos</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-blue"></i> Reportes financieros automatizados</li></ul></div>
+                <div class="flex flex-wrap gap-2"><span class="px-3 py-1 rounded-full bg-brand-blue/20 text-brand-blue text-sm">Vue.js</span><span class="px-3 py-1 rounded-full bg-brand-blue/20 text-brand-blue text-sm">Laravel</span><span class="px-3 py-1 rounded-full bg-brand-blue/20 text-brand-blue text-sm">MySQL</span><span class="px-3 py-1 rounded-full bg-brand-blue/20 text-brand-blue text-sm">AWS</span></div>
+            </div>
+        </div>
+    </div>
+    <div id="modal4" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal('modal4')"></div>
+        <div class="modal-content relative glass-strong rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('modal4')" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="img-zoom"><img src="images/project-elearning.jpg" alt="Plataforma E-learning" class="w-full h-64 object-cover"></div>
+            <div class="p-8">
+                <h3 class="text-2xl font-bold mb-4 gradient-text">Plataforma E-learning Corporativa</h3>
+                <p class="text-white/70 mb-6 leading-relaxed">Plataforma de aprendizaje en línea diseñada para empresas que desean capacitar a su personal de manera eficiente. Incluye cursos interactivos, evaluaciones, seguimiento de progreso y sistema de certificación automática.</p>
+                <div class="mb-6"><h4 class="font-semibold mb-3">Características principales:</h4><ul class="space-y-2 text-white/60"><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i> Reproductor de video interactivo</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i> Evaluaciones y cuestionarios</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i> Certificados automáticos</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-cyan"></i> Análisis de progreso detallado</li></ul></div>
+                <div class="flex flex-wrap gap-2"><span class="px-3 py-1 rounded-full bg-brand-cyan/20 text-brand-cyan text-sm">Next.js</span><span class="px-3 py-1 rounded-full bg-brand-cyan/20 text-brand-cyan text-sm">Python</span><span class="px-3 py-1 rounded-full bg-brand-cyan/20 text-brand-cyan text-sm">AWS</span><span class="px-3 py-1 rounded-full bg-brand-cyan/20 text-brand-cyan text-sm">MongoDB</span></div>
+            </div>
+        </div>
+    </div>
+    <div id="modal5" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal('modal5')"></div>
+        <div class="modal-content relative glass-strong rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('modal5')" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors z-10"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <div class="img-zoom"><img src="images/project-ai-dashboard.jpg" alt="Dashboard AI" class="w-full h-64 object-cover"></div>
+            <div class="p-8">
+                <h3 class="text-2xl font-bold mb-4 gradient-text">Dashboard Analítico con IA</h3>
+                <p class="text-white/70 mb-6 leading-relaxed">Panel de control inteligente que utiliza machine learning para analizar datos empresariales, predecir tendencias y generar insights accionables. Incluye visualizaciones interactivas y alertas automáticas basadas en anomalías detectadas.</p>
+                <div class="mb-6"><h4 class="font-semibold mb-3">Características principales:</h4><ul class="space-y-2 text-white/60"><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i> Análisis predictivo con ML</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i> Visualizaciones interactivas D3.js</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i> Detección de anomalías en tiempo real</li><li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-brand-purple"></i> Alertas inteligentes personalizables</li></ul></div>
+                <div class="flex flex-wrap gap-2"><span class="px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple text-sm">React</span><span class="px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple text-sm">TensorFlow</span><span class="px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple text-sm">D3.js</span><span class="px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple text-sm">Python</span></div>
+            </div>
+        </div>
+    </div>
+
+    <section class="relative py-24 lg:py-32 overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[200px]"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <span class="inline-block text-brand-cyan text-sm font-semibold tracking-wider uppercase mb-4">Ventajas</span>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">¿Por qué <span class="gradient-text">Elegirnos?</span></h2>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                <div class="reveal glass rounded-2xl p-6 lg:p-8 card-hover group">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-blue/20 to-brand-cyan/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="settings-2" class="w-7 h-7 text-brand-cyan"></i></div>
+                    <h3 class="text-xl font-bold mb-3">Desarrollo 100% Personalizado</h3>
+                    <p class="text-white/60">Cada proyecto es único. Creamos soluciones a medida que se adaptan perfectamente a tus necesidades específicas.</p>
+                </div>
+                <div class="reveal glass rounded-2xl p-6 lg:p-8 card-hover group" style="animation-delay: 0.1s;">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-purple/20 to-brand-blue/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="refresh-cw" class="w-7 h-7 text-brand-purple"></i></div>
+                    <h3 class="text-xl font-bold mb-3">Metodologías Ágiles</h3>
+                    <p class="text-white/60">Trabajamos con Scrum y Kanban para entregas iterativas, comunicación constante y resultados rápidos.</p>
+                </div>
+                <div class="reveal glass rounded-2xl p-6 lg:p-8 card-hover group" style="animation-delay: 0.2s;">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-cyan/20 to-brand-purple/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="headphones" class="w-7 h-7 text-brand-cyan"></i></div>
+                    <h3 class="text-xl font-bold mb-3">Seguimiento</h3>
+                    <p class="text-white/60">Realizaremos seguimiento continuo en los proyectos de nuestros clientes para asegurar su correcto funcionamiento e intervenir oportunamente ante cualquier incidencia, manteniendo el acompañamiento hasta cumplir plenamente con sus expectativas y objetivos.</p>
+                </div>
+                <div class="reveal glass rounded-2xl p-6 lg:p-8 card-hover group" style="animation-delay: 0.3s;">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-blue/20 to-brand-purple/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="shield-check" class="w-7 h-7 text-brand-blue"></i></div>
+                    <h3 class="text-xl font-bold mb-3">Alta Seguridad</h3>
+                    <p class="text-white/60">Implementamos las mejores prácticas de seguridad: encriptación, autenticación multifactor y auditorías regulares.</p>
+                </div>
+                <div class="reveal glass rounded-2xl p-6 lg:p-8 card-hover group" style="animation-delay: 0.4s;">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-purple/20 to-brand-cyan/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="trending-up" class="w-7 h-7 text-brand-purple"></i></div>
+                    <h3 class="text-xl font-bold mb-3">Escalabilidad Garantizada</h3>
+                    <p class="text-white/60">Construimos arquitecturas que crecen con tu negocio, desde startups hasta empresas enterprise.</p>
+                </div>
+                <div class="reveal glass rounded-2xl p-6 lg:p-8 card-hover group" style="animation-delay: 0.5s;">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-cyan/20 to-brand-blue/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"><i data-lucide="award" class="w-7 h-7 text-brand-cyan"></i></div>
+                    <h3 class="text-xl font-bold mb-3">Equipo Altamente Calificado</h3>
+                    <p class="text-white/60">Contamos con desarrolladores certificados y años de experiencia en las tecnologías más demandadas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="relative py-24 lg:py-32 overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand-cyan/30 to-transparent"></div>
+            <div class="absolute bottom-0 right-0 w-96 h-96 bg-brand-purple/10 rounded-full blur-[150px]"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <span class="inline-block text-brand-cyan text-sm font-semibold tracking-wider uppercase mb-4">Testimonios</span>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Lo que dicen nuestros <span class="gradient-text">Clientes</span></h2>
+            </div>
+            <div class="reveal relative">
+                <div id="testimonials-container" class="overflow-hidden">
+                    <div id="testimonials-track" class="flex transition-transform duration-500">
+                        <div class="testimonial-slide w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-4">
+                            <div class="glass rounded-2xl p-6 lg:p-8 h-full">
+                                <div class="flex items-center gap-4 mb-6"><img src="images/testimonial-1.jpg" alt="Cliente" class="w-14 h-14 rounded-full object-cover"><div><h4 class="font-bold">María González</h4><p class="text-white/60 text-sm">CEO, TechStart Colombia</p></div></div>
+                                <div class="flex gap-1 mb-4"><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i></div>
+                                <p class="text-white/70">"UkkoruCode transformó completamente nuestra operación. El equipo fue profesional, cumplieron con los plazos y el resultado superó nuestras expectativas. Altamente recomendados."</p>
+                            </div>
+                        </div>
+                        <div class="testimonial-slide w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-4">
+                            <div class="glass rounded-2xl p-6 lg:p-8 h-full">
+                                <div class="flex items-center gap-4 mb-6"><img src="images/testimonial-2.jpg" alt="Cliente" class="w-14 h-14 rounded-full object-cover"><div><h4 class="font-bold">Carlos Rodríguez</h4><p class="text-white/60 text-sm">Director de TI, FinCorp</p></div></div>
+                                <div class="flex gap-1 mb-4"><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i></div>
+                                <p class="text-white/70">"La plataforma fintech que desarrollaron para nosotros es excepcional. La seguridad, la velocidad y la experiencia de usuario son de clase mundial. Un socio tecnológico invaluable."</p>
+                            </div>
+                        </div>
+                        <div class="testimonial-slide w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-4">
+                            <div class="glass rounded-2xl p-6 lg:p-8 h-full">
+                                <div class="flex items-center gap-4 mb-6"><img src="images/testimonial-3.jpg" alt="Cliente" class="w-14 h-14 rounded-full object-cover"><div><h4 class="font-bold">Ana Martínez</h4><p class="text-white/60 text-sm">Fundadora, EduTech</p></div></div>
+                                <div class="flex gap-1 mb-4"><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i><i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i></div>
+                                <p class="text-white/70">"El equipo de UkkoruCode entendió perfectamente nuestra visión educativa. La plataforma e-learning que crearon ha revolucionado la forma en que capacitamos a nuestros estudiantes."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-center gap-4 mt-8">
+                    <button onclick="prevTestimonial()" class="w-12 h-12 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+                    <button onclick="nextTestimonial()" class="w-12 h-12 rounded-full glass flex items-center justify-center hover:bg-white/10 transition-colors"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="relative py-24 lg:py-32 overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-brand-blue/20 to-brand-purple/20 rounded-full blur-[150px] pulse-glow"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <span class="inline-block text-brand-cyan text-sm font-semibold tracking-wider uppercase mb-4">Contacto</span>
+                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">¿Listo para transformar tu <span class="gradient-text">negocio?</span></h2>
+                <p class="text-white/60 text-lg max-w-2xl mx-auto">Contáctanos hoy para discutir los requisitos de tu proyecto y obtener una consulta gratuita.</p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16">
+                <div class="reveal">
+                    <form id="contact-form" class="glass rounded-3xl p-8">
+                        <h3 class="text-2xl font-bold mb-6">Envíanos un mensaje</h3>
+                        <div class="space-y-6">
+                            <div class="grid sm:grid-cols-2 gap-6">
+                                <div><label class="block text-white/70 text-sm mb-2">Tu Nombre</label><input type="text" name="name" required class="input-glow w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none" placeholder="Juan Pérez"></div>
+                                <div><label class="block text-white/70 text-sm mb-2">Correo Electrónico</label><input type="email" name="email" required class="input-glow w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none" placeholder="juan@empresa.com"></div>
+                            </div>
+                            <div><label class="block text-white/70 text-sm mb-2">Nombre de la Empresa</label><input type="text" name="company" class="input-glow w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none" placeholder="Tu Empresa"></div>
+                            <div><label class="block text-white/70 text-sm mb-2">Tu Mensaje</label><textarea name="message" required rows="5" class="input-glow w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none resize-none" placeholder="Cuéntanos sobre tu proyecto..."></textarea></div>
+                            <button type="submit" id="submit-btn" class="w-full btn-primary py-4 rounded-xl font-semibold flex items-center justify-center gap-2"><span>Enviar Mensaje</span><i data-lucide="send" class="w-5 h-5"></i></button>
+                        </div>
+                    </form>
+                </div>
+                <div class="reveal space-y-8" style="animation-delay: 0.2s;">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-6">Información de Contacto</h3>
+                        <div class="space-y-4">
+                            <a href="mailto:contacto@ukkorucode.com" class="flex items-center gap-4 glass rounded-xl p-4 hover:bg-white/10 transition-colors group">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-cyan/20 to-brand-blue/20 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="mail" class="w-5 h-5 text-brand-cyan"></i></div>
+                                <div><div class="text-white/50 text-sm">Correo</div><div class="text-white font-medium">contacto@ukkorucode.com</div></div>
+                            </a>
+                            <a href="tel:+5712345678" class="flex items-center gap-4 glass rounded-xl p-4 hover:bg-white/10 transition-colors group">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-purple/20 to-brand-cyan/20 flex items-center justify-center group-hover:scale-110 transition-transform"><i data-lucide="phone" class="w-5 h-5 text-brand-purple"></i></div>
+                                <div><div class="text-white/50 text-sm">Teléfono</div><div class="text-white font-medium">+57 323 9913688</div></div>
+                            </a>
+                            <div class="flex items-center gap-4 glass rounded-xl p-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-blue/20 to-brand-purple/20 flex items-center justify-center"><i data-lucide="map-pin" class="w-5 h-5 text-brand-blue"></i></div>
+                                <div><div class="text-white/50 text-sm">Ubicación</div><div class="text-white font-medium">Bogotá, Colombia</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Síguenos</h3>
+                        <div class="flex gap-4">
+                            <a href="https://www.facebook.com/profile.php?id=61578908400058" target="_blank" class="w-12 h-12 rounded-xl glass flex items-center justify-center hover:bg-brand-blue/20 hover:border-brand-blue/50 transition-all group"><i data-lucide="facebook" class="w-5 h-5 text-white/70 group-hover:text-brand-blue transition-colors"></i></a>
+                            <a href="https://www.instagram.com/ukkoru_code/" target="_blank" class="w-12 h-12 rounded-xl glass flex items-center justify-center hover:bg-brand-purple/20 hover:border-brand-purple/50 transition-all group"><i data-lucide="instagram" class="w-5 h-5 text-white/70 group-hover:text-brand-purple transition-colors"></i></a>
+                            <a href="https://www.tiktok.com/@ukkoru_code"  target="_blank"
+                            class="w-12 h-12 rounded-xl glass flex items-center justify-center hover:bg-brand-cyan/20 hover:border-brand-cyan/50 transition-all group">
+                            <!-- SVG TikTok -->
+                            <svg xmlns="http://www.w3.org/2000/svg" 
+                            viewBox="0 0 24 24" 
+                            class="w-5 h-5 text-white/70 group-hover:text-brand-cyan transition-colors fill-current">
+                            <path d="M21 8.29a6.94 6.94 0 0 1-4.13-1.38v6.33a5.75 5.75 0 1 1-5.75-5.75c.18 0 .36.01.53.03v2.38a3.37 3.37 0 1 0 2.84 3.34V2h2.37a4.56 4.56 0 0 0 4.14 4.14v2.15z"/>
+                            </svg></a>
+                            <a href="https://wa.me/573239913688?text=Hola%20quiero%20información"  target="_blank" class="w-12 h-12 rounded-xl glass flex items-center justify-center hover:bg-green-500/20 hover:border-green-500/50 transition-all group"><i data-lucide="message-circle" class="w-5 h-5 text-white/70 group-hover:text-green-400 transition-colors"></i></a>
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl p-6">
+                        <h3 class="text-xl font-bold mb-4">Horario de Atención</h3>
+                        <div class="space-y-2 text-white/70">
+                            <div class="flex justify-between"><span>Lunes - Viernes</span><span>9:00 AM - 6:00 PM</span></div>
+                            <div class="flex justify-between"><span>Sábado</span><span>10:00 AM - 2:00 PM</span></div>
+                            <div class="flex justify-between"><span>Domingo</span><span>Cerrado</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="relative bg-[#08080c] border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 lg:gap-12">
+                <div class="col-span-2 md:col-span-4 lg:col-span-2">
+                    <a href="#home" class="flex items-center gap-2 mb-6">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center">
+                        <img src="./images/Circular Logo.png" alt="Logo" class="w-10 h-10 object-contain">
+                        </div>
+                        <span class="text-xl font-bold">Ukkoru<span class="gradient-text">Code</span></span>
+                    </a>
+                    <p class="text-white/60 text-sm leading-relaxed mb-6 max-w-sm">Transformando ideas en soluciones digitales poderosas. Somos una empresa colombiana de desarrollo de software dedicada a la innovación y la excelencia.</p>
+                    <div class="flex items-center gap-2 text-white/40 text-sm"><span>Hecho con</span><i data-lucide="heart" class="w-4 h-4 text-red-500 fill-red-500"></i><span>en Colombia</span></div>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Empresa</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#about" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Nosotros</a></li>
+                        <li><a href="#services" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Servicios</a></li>
+                        <li><a href="#portfolio" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Portafolio</a></li>
+                        <li><a href="#contact" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Contacto</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Servicios</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#services" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Desarrollo Web</a></li>
+                        <li><a href="#services" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Apps Móviles</a></li>
+                        <li><a href="#services" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Software a Medida</a></li>
+                        <li><a href="#services" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Consultoría</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Política de Privacidad</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Términos de Servicio</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-brand-cyan transition-colors">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-white/5">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p class="text-white/40 text-sm">&copy; 2024 UkkoruCode. Todos los derechos reservados.</p>
+                    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-2 text-white/60 hover:text-brand-cyan transition-colors group"><span class="text-sm">Volver arriba</span><div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:border-brand-cyan group-hover:bg-brand-cyan/10 transition-all"><i data-lucide="arrow-up" class="w-4 h-4"></i></div></button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="fixed top-4 right-4 z-50 transform translate-x-full transition-transform duration-300">
+        <div class="glass-strong rounded-xl p-4 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center"><i data-lucide="check" class="w-5 h-5 text-green-400"></i></div>
+            <div><h4 class="font-semibold">¡Mensaje enviado!</h4><p class="text-white/60 text-sm">Te contactaremos pronto.</p></div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        gsap.registerPlugin(ScrollTrigger);
+        
+        const navbar = document.getElementById('navbar');
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > 100) {
+                navbar.classList.remove('nav-hidden');
+                navbar.classList.add('nav-visible');
+            } else {
+                navbar.classList.add('nav-hidden');
+                navbar.classList.remove('nav-visible');
+            }
+            lastScroll = currentScroll;
+        }, { passive: true });
+
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        gsap.from('.hero-badge', { opacity: 0, y: 30, duration: 0.8, delay: 0.2, ease: 'power3.out' });
+        gsap.from('.hero-title', { opacity: 0, y: 50, duration: 1, delay: 0.4, ease: 'power3.out' });
+        gsap.from('.hero-subtitle', { opacity: 0, y: 30, duration: 0.8, delay: 0.6, ease: 'power3.out' });
+        gsap.from('.hero-buttons', { opacity: 0, y: 30, duration: 0.8, delay: 0.8, ease: 'power3.out' });
+        gsap.from('.hero-stats > div', { opacity: 0, y: 30, duration: 0.6, stagger: 0.1, delay: 1, ease: 'power3.out' });
+        gsap.from('.hero-image', { opacity: 0, x: 50, duration: 1, delay: 0.6, ease: 'power3.out' });
+
+        const revealElements = document.querySelectorAll('.reveal');
+        revealElements.forEach((element) => {
+            gsap.fromTo(element, { opacity: 0, y: 30 }, {
+                opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+                scrollTrigger: { trigger: element, start: 'top 85%', toggleActions: 'play none none none' }
+            });
+        });
+
+        const orgLines = document.querySelectorAll('.org-line');
+        ScrollTrigger.create({
+            trigger: '.org-line', start: 'top 80%',
+            onEnter: () => { orgLines.forEach((line, index) => { setTimeout(() => { line.classList.add('animate'); }, index * 200); }); }
+        });
+
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const particleCount = 30;
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        class Particle {
+            constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 1; this.speedX = Math.random() * 0.5 - 0.25; this.speedY = Math.random() * 0.5 - 0.25; this.opacity = Math.random() * 0.5 + 0.2; }
+            update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width) this.x = 0; if (this.x < 0) this.x = canvas.width; if (this.y > canvas.height) this.y = 0; if (this.y < 0) this.y = canvas.height; }
+            draw() { ctx.fillStyle = `rgba(0, 212, 255, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+        }
+        function initParticles() { particles = []; for (let i = 0; i < particleCount; i++) particles.push(new Particle()); }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(particle => { particle.update(); particle.draw(); });
+            particles.forEach((a, i) => {
+                particles.slice(i + 1).forEach(b => {
+                    const dx = a.x - b.x, dy = a.y - b.y, distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 100) { ctx.strokeStyle = `rgba(0, 102, 255, ${0.1 * (1 - distance / 100)})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+                });
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        initParticles();
+        animateParticles();
+
+        function openModal(modalId) { const modal = document.getElementById(modalId); modal.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeModal(modalId) { const modal = document.getElementById(modalId); modal.classList.remove('active'); document.body.style.overflow = ''; }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { document.querySelectorAll('.modal-overlay.active').forEach(modal => { modal.classList.remove('active'); }); document.body.style.overflow = ''; }
+        });
+
+        let currentTestimonial = 0;
+        const testimonialsTrack = document.getElementById('testimonials-track');
+        const testimonialSlides = document.querySelectorAll('.testimonial-slide');
+        const totalTestimonials = testimonialSlides.length;
+        function updateCarousel() { const slideWidth = testimonialSlides[0].offsetWidth; testimonialsTrack.style.transform = `translateX(-${currentTestimonial * slideWidth}px)`; }
+        function nextTestimonial() { currentTestimonial = (currentTestimonial + 1) % totalTestimonials; updateCarousel(); }
+        function prevTestimonial() { currentTestimonial = (currentTestimonial - 1 + totalTestimonials) % totalTestimonials; updateCarousel(); }
+        setInterval(nextTestimonial, 5000);
+
+        const contactForm = document.getElementById('contact-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const toast = document.getElementById('toast');
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            submitBtn.innerHTML = '<span class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span><span>Enviando...</span>';
+            submitBtn.disabled = true;
+            setTimeout(() => {
+                submitBtn.innerHTML = '<span>Enviar Mensaje</span><i data-lucide="send" class="w-5 h-5"></i>';
+                submitBtn.disabled = false;
+                lucide.createIcons();
+                contactForm.reset();
+                toast.classList.remove('translate-x-full');
+                setTimeout(() => { toast.classList.add('translate-x-full'); }, 3000);
+            }, 1500);
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); mobileMenu.classList.add('hidden'); }
+            });
+        });
+
+        window.addEventListener('load', () => { lucide.createIcons(); });
+    </script>
+</body>
+</html>
