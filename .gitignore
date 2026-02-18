@@ -1,0 +1,6 @@
+node_modules
+app/node_modules
+app/src
+app/public
+app/package.json
+app/package-lock.json
